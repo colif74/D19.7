@@ -31,15 +31,11 @@ GAME_CATEGORY = [
 ]
 
 
-def user_directory_path(instance, filename):
-    return 'user{0}/{1}'.format(instance.user.id, filename)
-
 
 class Author(models.Model):
     object = None
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    upload = models.FileField(upload_to=user_directory_path, default=0)
-
+    
     def __str__(self):
         return f'{self.user}'
 
@@ -59,14 +55,14 @@ class Post(models.Model):
     context = models.TextField(blank=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     category = models.ManyToManyField(to=Category, through='PostCategory', related_name='PostCategory')
-    video_count = models.FileField(upload_to=user_directory_path, default=0)
-    image_count = models.FileField(upload_to=user_directory_path, default=0)
+    video_count = models.FileField(upload_to="videos", default=0)
+    image_count = models.FileField(upload_to="images" default=0)
 
     def preview(self):
         return f"{self.context[:124]}..."
 
     def __str__(self):
-        return f'{self.title()}:{self.context[:20]}'
+        return f'{self.title.title()}:{self.context[:20]}'
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.pk)])
