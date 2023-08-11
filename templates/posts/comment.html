@@ -1,0 +1,63 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_tags %}
+
+{% block title %}
+	Comment
+{% endblock title %}
+
+{% block content %}
+    <h2>Поиск комментария</h2>
+
+	<!--  Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе -->
+	<form action="" method="get">
+		<!-- Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями -->
+		{{ filterset.form.as_p }}
+		<!-- Добавим кнопку отправки данных формы -->
+		<input type="submit" value="Найти" />
+	</form>
+    <hr>
+	{% if comments %}
+		<table cellpadding="5">
+			<tr>
+				<th>Текст</th>
+				<th>Принят?</th>
+				<th>Объявление</th>
+				<th>Автор</th>
+			</tr>
+			{% for comment in comments %}
+				<tr>
+					<td>{{ comment.text }}</td>
+					<td>{{ comment.approved|yesno:'Да,Нет,Может быть' }}</td>
+					<td><a href="{% url 'posts_detail' pk=comment.posts.pk %}">{{ comment.posts.title }}</a></td>
+					<td>{{ reply.user }}</td>
+					{% if not comment.approved %}
+						<td><button><a href="{% url 'comment_approve' pk=comment.pk %}">Принять</button></td>
+					{% endif %}
+					<td><button><a href="{% url 'comment_delete' pk=comment.pk %}">Удалить</button></td>
+				</tr>
+
+			{% endfor %}
+		</table>
+	{% else %}
+		<h2>Откликов нет!</h2>
+	{% endif %}
+	<!-- Добавляем пагинацию на страницу -->
+	<!-- Информация о предыдущих страницах -->
+	{% if paginator.num_pages != 1 %}
+		{% if page_obj.has_previous %}
+			<a href="?{% url_replace page=1 %}">&laquo;Первая</a>
+			...
+			<a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+		{% endif %}
+		<!-- Информация о текущей странице -->
+		|{{ page_obj.number }}|
+		<!-- Информация о следующих страницах -->
+		{% if page_obj.has_next %}
+			<a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+			...
+			<a href="?{% url_replace page=page_obj.paginator.num_pages %}">Последняя&raquo;</a>
+		{% endif %}
+	{% endif %}
+
+{% endblock content %}
